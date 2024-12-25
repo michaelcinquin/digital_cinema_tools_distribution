@@ -4617,7 +4617,11 @@ def dcp_inspect( options, arg )
     info << 'Audio analysis skipped' unless cpls.empty?
   end
   info << 'Found ' + [ am_info, pkl_info, cpl_info ].join( ', ' )
-  info << "#{ amount( 'Error', errors ) }#{ errors.size == 0 ? ' ✅' : ' ❌' }, #{ amount( 'Hint', hints ) }"
+  if errors.size == 0
+    info << "No problemo"
+  else
+    info << "#{ amount( 'Error', errors ) }#{ errors.size == 0 ? ' ✅' : ' ❌' }, #{ amount( 'Hint', hints ) }"
+  end
 
   return { :errors => errors, :hints => hints, :siginfo => siginfo, :info => info, :am_files => am_files, :pkls => pkls, :cpls => cpls, :pkls_missing => pkls_missing, :cpls_missing => cpls_missing }
 end # dcp_inspect
