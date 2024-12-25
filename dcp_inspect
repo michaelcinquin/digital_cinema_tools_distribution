@@ -3722,9 +3722,14 @@ def cpl_inspect_xml( xml, dict, audio_stats, package_dir, composition_summaries,
       cpl_errors = true
     else
       case cpl_type
-      when MStr::AssetTypeSmpte
-        errors << "CPL #{ cpl_id }: Composition type ❌: #{ composition_type }"
-        cpl_errors = true
+      when MStr::AssetTypeSmpte #charbon
+        if supplemental_refs[:main_picture] > 0 #version file
+          hints << "CPL #{ cpl_id }: Composition type : #{ composition_type }"
+        else
+          errors << "CPL #{ cpl_id }: Composition type ❌: #{ composition_type }"
+          cpl_errors = true
+        end
+
       when MStr::AssetTypeInterop
         hints << "CPL #{ cpl_id }: Composition type: #{ composition_type }"
       end
@@ -3767,8 +3772,12 @@ def cpl_inspect_xml( xml, dict, audio_stats, package_dir, composition_summaries,
     cpl_errors = true
   else
     unless composition_picture_decomposition_levels.size == 0 # Supplemental/VF/External
-      errors << "CPL #{ cpl_id }: Found inconsistent image DecompositionLevels values across the composition (#{ composition_picture_decomposition_levels.each_with_index.map { |v, index| 'Reel ' + ( index + 1 ).to_s + ': ' + v.to_s }.join( ', ' ) }). This will produce visual artefacts in reel transitions ❌"
-      cpl_errors = true
+      if supplemental_refs[:main_picture] > 0 #version file #charbon
+        hints << "CPL #{ cpl_id }: (Charbon) : pour un VF, pas de problèmes ! Found inconsistent image DecompositionLevels values across the composition (#{ composition_picture_decomposition_levels.each_with_index.map { |v, index| 'Reel ' + ( index + 1 ).to_s + ': ' + v.to_s }.join( ', ' ) }). This will produce visual artefacts in reel transitions ❌"
+      else
+        errors << "CPL #{ cpl_id }: (Charbon) : pour un VF, pas de problèmes ! Found inconsistent image DecompositionLevels values across the composition (#{ composition_picture_decomposition_levels.each_with_index.map { |v, index| 'Reel ' + ( index + 1 ).to_s + ': ' + v.to_s }.join( ', ' ) }). This will produce visual artefacts in reel transitions ❌"
+      end
+      #cpl_errors = true
     end
   end
 
@@ -3853,8 +3862,8 @@ def cpl_inspect_xml( xml, dict, audio_stats, package_dir, composition_summaries,
     cpl_errors = true
   else
     unless composition_sound_channel_formats.size == 0 # Supplemental/VF/External
-      errors << "CPL #{ cpl_id }: Found inconsistent sound ChannelFormat values across the composition (#{ composition_sound_channel_formats.each_with_index.map { |v, index| 'Reel ' + ( index + 1 ).to_s + ': ' + v.to_s }.join( ', ' ) }). Playback may fail"
-      cpl_errors = true
+      hints << "CPL #{ cpl_id }: (Charbon) Serait-ce un VF ? Si oui, pas de problèmes ! Found inconsistent sound ChannelFormat values across the composition (#{ composition_sound_channel_formats.each_with_index.map { |v, index| 'Reel ' + ( index + 1 ).to_s + ': ' + v.to_s }.join( ', ' ) }). Playback may fail"
+      #cpl_errors = true
     end
   end
 
